@@ -2,13 +2,13 @@
 
 ## Quick start
 
-### Create infrastructure
+### 1. Run terraform to create infrastructure
 
 ```shell
 cd terraform
 ```
 
-#### SSH key
+#### Create variables pointing to the SSH keys
 Create file `override.tf`
 ```
 variable "server_public_key_path" {
@@ -47,7 +47,7 @@ terraform apply
 cp MySetup-testnet-OpenAPI.inventory ../ansible
 ```
 
-### Run ansible
+### 2. Run ansible to setup required software and configure it
 
 ```
 cd ansible

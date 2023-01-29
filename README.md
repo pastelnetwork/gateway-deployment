@@ -44,6 +44,12 @@ terraform apply
 
 #### Copy created `*.inventory` file to ansible directory
 ```shell
-cp *.inventory
+cp MySetup-testnet-OpenAPI.inventory ../ansible
 ```
 
+### Run ansible
+
+```
+cd ansible
+ansible-playbook -i MySetup-testnet-OpenAPI.inventory hosted_infra.yml
+```

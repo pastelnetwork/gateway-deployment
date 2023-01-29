@@ -8,7 +8,7 @@
 cd terraform
 ```
 
-#### Create variables pointing to the SSH keys
+#### Create variables pointing to the SSH keys (keys must exist)
 Create file `override.tf`
 ```
 variable "server_public_key_path" {

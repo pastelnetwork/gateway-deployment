@@ -1,0 +1,26 @@
+- name: Install redis-server
+  become: true
+  package:
+    update_cache: yes
+    state: present
+    name: [ redis-server ]
+- name: Set redis supervised by systemd
+  become: true
+  replace:
+    path: /etc/redis/redis.conf
+    regexp: 'supervised no'
+    replace: 'supervised systemd'
+    backup: yes
+- name: Set redis to listen on instance intenal IP
+  become: true
+  replace:
+    path: /etc/redis/redis.conf
+    regexp: 'bind 127.0.0.1 ::1'
+    replace: 'bind 0.0.0.0 ::0'
+    backup: yes
+- name: Redis Restart
+  become: true
+  service:
+    name=redis-server
+    state=restarted
+    enabled=yes  

@@ -1,0 +1,22 @@
+- name: Install nginx
+  become: true
+  package:
+    update_cache: yes
+    state: present
+    name: [ nginx, certbot, python3-certbot-nginx ]
+- name: Copy services nginx config
+  become: true
+  template:
+    src: ../templates/nginx-srv.conf.j2
+    dest: /etc/nginx/sites-available/nginx-{{inventory_hostname}}.conf
+- name: Enable configuration
+  become: true
+  file:
+    src: "/etc/nginx/sites-available/nginx-{{inventory_hostname}}.conf"
+    dest: /etc/nginx/sites-enabled/default
+    state: link
+- name: Restart nginx
+  become: true
+  service:
+    name: nginx
+    state: restarted

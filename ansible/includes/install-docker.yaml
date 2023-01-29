@@ -1,0 +1,57 @@
+- name: Install required system packages
+  become: true
+  apt:
+    pkg:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - software-properties-common
+      - python3-pip
+      - virtualenv
+      - python3-setuptools
+    state: latest
+    update_cache: true
+
+- name: Add Docker GPG apt Key
+  become: true
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add Docker Repository
+  become: true
+  apt_repository:
+    repo: deb https://download.docker.com/linux/ubuntu focal stable
+    state: present
+
+- name: Update apt and install docker-ce, containerd.io and docker-compose
+  become: true
+  apt:
+    pkg:
+      - docker-ce
+      - containerd.io
+      - docker-compose-plugin
+    state: latest
+    update_cache: true
+
+- name: Install Docker Module for Python
+  become: true
+  pip:
+    name: 
+      - docker
+      - docker-compose
+
+- name: Add remote "ubuntu" user to "docker" group
+  become: true
+  remote_user: ubuntu
+  user:
+    name: ubuntu
+    groups: docker
+    append: yes
+
+- name: Start docker service
+  become: true
+  service:
+    name: docker
+    state: started
+    enabled: yes

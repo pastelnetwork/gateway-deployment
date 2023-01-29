@@ -1,0 +1,34 @@
+- name: Create '{{pastel_data_path}}' directory
+  file:
+    path: '{{pastel_data_path}}'
+    state: directory
+
+- name: Download and unarchive blockchanin snapshot
+  ansible.builtin.unarchive:
+    src: 'https://download.pastel.network/snapshots/{{ snapshot_name }}'
+    dest: '{{pastel_data_path}}'
+    remote_src: yes
+
+- name: Remove old pastelup
+  ansible.builtin.file: 
+    path: ~/pastelup-linux-amd64
+    state: absent
+
+- name: Download pastelup
+  ansible.builtin.get_url:
+    url: 'https://download.pastel.network/{{ release_name }}/pastelup-linux-amd64'
+    dest: ~/pastelup-linux-amd64
+    mode: '0755'
+
+- name: Install Walletnode
+  ansible.builtin.shell: yes | ~/pastelup-linux-amd64 install walletnode -f -r '{{ release_name }}' -n {{ network_type }} --log-file ~/pastelup.log --log-level debug
+
+- name: Set WalletNode to run on {{ wn_base_port }}
+  replace:
+    path: ~/.pastel/walletnode.yml
+    regexp: 'port: 8080'
+    replace: 'port: {{ wn_base_port }}'
+    backup: yes
+
+- name: Setup walletnode as service
+  ansible.builtin.command: './pastelup-linux-amd64 update install-service --solution walletnode --autostart --start --log-file ~/pastelup.log --log-level debug'

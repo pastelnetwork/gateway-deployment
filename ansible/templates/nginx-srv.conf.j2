@@ -1,0 +1,56 @@
+server {
+    listen {{ front_end_external_port }};
+    listen [::]:{{ front_end_external_port }};
+
+    server_name {{ server_uri }};
+
+    location / {
+        proxy_pass http://{{ front_end_internal_host }}:{{ front_end_internal_port }}/;
+        proxy_buffering off;
+    }
+}
+server {
+    listen {{ api_external_port }};
+    listen [::]:{{ api_external_port }};
+
+    server_name {{ server_uri }};
+    underscores_in_headers on;
+
+    location / {
+        proxy_pass http://{{ api_internal_host }}:{{ api_internal_port }}/;
+        proxy_buffering off;
+    }
+}
+server {
+    listen {{ ipfs_external_port }};
+    listen [::]:{{ ipfs_external_port }};
+
+    server_name {{ server_uri }};
+
+    location / {
+        proxy_pass http://{{ ipfs_internal_host }}:{{ ipfs_internal_port }};
+        proxy_buffering off;
+    }
+}
+server {
+    listen {{ flowers_external_port }};
+    listen [::]:{{ flowers_external_port }};
+
+    server_name {{ server_uri }};
+
+    location / {
+        proxy_pass http://{{ flowers_internal_host }}:{{ flowers_internal_port }}/;
+        proxy_buffering off;
+    }
+}
+server {
+    listen {{ pgadmin_external_port }};
+    listen [::]:{{ pgadmin_external_port }};
+
+    server_name {{ server_uri }};
+
+    location / {
+        proxy_pass http://{{ pgadmin_internal_host }}:{{ pgadmin_internal_port }}/;
+        proxy_buffering off;
+    }
+}

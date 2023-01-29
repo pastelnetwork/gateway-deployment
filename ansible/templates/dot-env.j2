@@ -1,0 +1,29 @@
+SECRET_KEY={{ lookup('password', '/dev/null chars=ascii_lowercase,digits length=64') }}
+
+SERVER_HOST=http://{{ server_uri }}
+
+STACK_NAME=openapi-pastel-network
+
+PASTEL_RPC_PORT={{ rpcport }}
+PASTEL_RPC_USER={{ rpcuser }}
+PASTEL_RPC_PWD={{ rpcpassword }}
+
+WN_BASE_PORT={{ wn_base_port }}
+
+PASTEL_ID=CHANGE_ME
+PASSPHRASE=CHANGE_ME
+
+BURN_ADDRESS=tPpasteLBurnAddressXXXXXXXXXXX3wy7u     # Testnet
+# BURN_ADDRESS=PtpasteLBurnAddressXXXXXXXXXXbJ5ndd   # Mainnet
+
+FILE_STORAGE=/tmp
+
+POSTGRES_SERVER=openapi.clyixrliqzd7.us-east-2.rds.amazonaws.com
+POSTGRES_USER=openapi
+POSTGRES_PASSWORD=KZMJzBhsLBsylrbyQRoh
+POSTGRES_DB=testnet
+
+FIRST_SUPERUSER=admin@openapi.pastel.network
+FIRST_SUPERUSER_PASSWORD=admin
+
+SMTP_HOST=smtp.gmail.com

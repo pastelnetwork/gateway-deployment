@@ -1,0 +1,18 @@
+version: "3.5"
+services:
+
+  flower:
+    image: mher/flower
+    environment:
+      - CELERY_BROKER_URL=redis://{{ redis_internal_host }}:6379/0
+      - FLOWER_PORT=5555
+    ports:
+      - "{{ flowers_internal_port }}:5555"
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=plkvnk@gmail.com
+      - PGADMIN_DEFAULT_PASSWORD=test
+    ports:
+      - "5673:80"

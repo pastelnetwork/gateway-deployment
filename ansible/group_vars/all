@@ -1,0 +1,31 @@
+---
+release_name: latest
+network_type: testnet
+snapshot_name: testnet/snapshot-102328-p2.tar.gz
+pastel_data_path: ~/.pastel/testnet3
+
+server_uri: openapi.testnet.pastel.network
+
+front_end_external_port: 80   # if need to chaning this value, remember to adjust that port in FireWall (either manually or in terraform file) 
+front_end_internal_port: 8181
+front_end_internal_host: localhost
+
+api_external_port: 8080       # if need to chaning this value, remember to adjust that port in FireWall (either manually or in terraform file)
+api_internal_port: 8090       # if need to chaning this value, remember to adjust that port in FireWall (either manually or in terraform file)
+api_internal_host: '{{ hostvars.master01.internal_ip }}'
+
+ipfs_external_port: 4001      # if need to chaning this value, remember to adjust that port in FireWall (either manually or in terraform file)
+ipfs_internal_port: 4001      # if need to chaning this value, remember to adjust that port in FireWall (either manually or in terraform file)
+ipfs_internal_host: '{{ hostvars.master01.internal_ip }}'
+
+flowers_external_port: 5555   # if need to chaning this value, remember to adjust that port in FireWall (either manually or in terraform file)
+flowers_internal_port: 5556
+flowers_internal_host: localhost
+
+pgadmin_external_port: 5672   # if need to chaning this value, remember to adjust that port in FireWall (either manually or in terraform file)
+pgadmin_internal_port: 5673
+pgadmin_internal_host: localhost
+
+redis_internal_host: '{{ hostvars.master01.internal_ip }}'
+
+wn_base_port: 8050 # default WN port is 8080, but IPFS is running http Gateway on that port

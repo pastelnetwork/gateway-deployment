@@ -1,0 +1,11 @@
+- name: Copy Docker Compose files
+  template:
+    src: ../templates/docker-compose.yml.j2
+    dest: ~/docker-compose.yml
+- name: Deploy Docker Compose - flowers and pgadmin
+  become: true
+  community.docker.docker_compose:
+    project_src: /home/ubuntu
+  register: output
+- ansible.builtin.debug:
+    var: output

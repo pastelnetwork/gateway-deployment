@@ -1,0 +1,71 @@
+---
+- name: Install required packages
+  become: true
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ zsh_dependencies }}"
+  tags: packages
+  when: ansible_os_family != "Darwin"
+
+- name: Install required packages
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ zsh_dependencies }}"
+  tags: packages
+  when: ansible_os_family == "Darwin"
+
+- name: Get zsh path
+  command: which zsh
+  register: zsh_path
+  changed_when: no
+  tags: configuration
+
+- name: Switch to zsh
+  become: true
+  user:
+    name: "{{ ansible_env.USER }}"
+    shell: "{{ zsh_path.stdout }}"
+  tags: configuration
+
+- name: Clone oh-my-zsh repository
+  git:
+    repo: https://github.com/robbyrussell/oh-my-zsh.git
+    dest: "{{ ansible_env.HOME }}/.oh-my-zsh"
+    accept_hostkey: yes
+    update: yes
+  tags: configuration
+
+- name: Clone oh-my-zsh custom plugins
+  git:
+    repo: "{{ item.repo }}"
+    dest: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/plugins/{{ item.name }}"
+    accept_hostkey: yes
+    update: yes
+  with_items: "{{ zsh_ohmy_custom_plugins }}"
+  tags: configuration
+
+- name: Clone oh-my-zsh custom themes
+  git:
+    repo: "{{ item.repo }}"
+    dest: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/themes/{{ item.name }}"
+    accept_hostkey: yes
+    update: yes
+  with_items: "{{ zsh_ohmy_custom_themes }}"
+  tags: configuration
+
+- name: Create zsh config file
+  template:
+    src: zsh.config.j2
+    dest: "{{ ansible_env.HOME }}/.zshrc"
+    mode: 0640
+  tags: configuration
+
+- name: Linking .zshrc.local
+  file:
+    src: "{{ zsh_append_zshrc }}"
+    dest: "{{ ansible_env.HOME }}/.zshrc.local"
+    state: link
+  tags: configuration
+  when: zsh_append_zshrc|default("") != ""

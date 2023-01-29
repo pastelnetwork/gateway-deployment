@@ -1,0 +1,26 @@
+[proxy]
+%{ for index, proxy in proxys ~}
+${ proxys_ids[index]} ansible_host=${ proxy } internal_ip=${ proxy_internal_ips[index] }
+%{ endfor ~}
+
+[proxy:vars]
+ansible_user=${proxys_user}
+ansible_private_key_file=${proxys_priv_key_path}
+
+[master]
+%{ for index, master in masters ~}
+${ masters_ids[index]} ansible_host=${ master } internal_ip=${ master_internal_ips[index] }
+%{ endfor ~}
+
+[master:vars]
+ansible_user=${masters_user}
+ansible_private_key_file=${masters_priv_key_path}
+
+[workers]
+%{ for index, worker in workers ~}
+${ workers_ids[index]} ansible_host=${ worker } internal_ip=${ workers_internal_ips[index] }
+%{ endfor ~}
+
+[workers:vars]
+ansible_user=${workers_user}
+ansible_private_key_file=${workers_priv_key_path}

@@ -39,6 +39,7 @@ locals {
 
 #### Run terraform
 ```shell
+terraform init
 terraform apply
 ```
 

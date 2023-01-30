@@ -32,17 +32,19 @@
 - name: Master host setup
   hosts: master
   tasks:
-    - name: Instal redis
-      ansible.builtin.include_tasks: ./includes/install-redis.yaml
+    # - name: Instal redis
+    #   ansible.builtin.include_tasks: ./includes/install-redis.yaml
 
-    - name: Instal IPFS
-      ansible.builtin.include_tasks: ./includes/install-ipfs.yaml
+    # - name: Instal IPFS
+    #   ansible.builtin.include_tasks: ./includes/install-ipfs.yaml
 
-    - name: Instal walletnode
-      ansible.builtin.include_tasks: ./includes/install-walletnode.yaml
+    # - name: Instal walletnode
+    #   ansible.builtin.include_tasks: ./includes/install-walletnode.yaml
 
     - name: Instal API back-end
       ansible.builtin.include_tasks: ./includes/install-backend.yaml
+      vars:
+        redis_host: localhost
   tags: master_host_setup
 
 - name: Worker host setup
@@ -54,8 +56,10 @@
     # - name: Instal walletnode
     #   ansible.builtin.include_tasks: ./includes/install-walletnode.yaml
 
-    - name: Instal API back-end
-      ansible.builtin.include_tasks: ./includes/install-backend.yaml
+    # - name: Instal API back-end
+    #   ansible.builtin.include_tasks: ./includes/install-backend.yaml
+    #   vars:
+    #     redis_host: '{{ redis_internal_host }}'
   tags: worker_host_setup
 
 ...

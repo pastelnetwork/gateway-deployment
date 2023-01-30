@@ -3,14 +3,14 @@
 - name: Basic host setup
   hosts: all
   tasks:
-  # - name: Install required packages
-  #   become: true
-  #   package:
-  #     update_cache: yes
-  #     name: [git, curl, wget, zip, unzip, vim, libgomp1, build-essential, libsodium-dev]
-  #     state: present
-  # roles:
-  #   - { role: ansible-role-zsh, zsh_ohmy_theme: robbyrussell, zsh_ohmy_plugins: [git, git-extras, zsh-autosuggestions zsh-syntax-highlighting] }
+  - name: Install required packages
+    become: true
+    package:
+      update_cache: yes
+      name: [git, curl, wget, zip, unzip, vim, libgomp1, build-essential, libsodium-dev]
+      state: present
+  roles:
+    - { role: ansible-role-zsh, zsh_ohmy_theme: robbyrussell, zsh_ohmy_plugins: [git, git-extras, zsh-autosuggestions zsh-syntax-highlighting] }
   tags: common_host_setup
 
 # Proxy/Front-end host setup
@@ -32,14 +32,14 @@
 - name: Master host setup
   hosts: master
   tasks:
-    # - name: Instal redis
-    #   ansible.builtin.include_tasks: ./includes/install-redis.yaml
+    - name: Instal redis
+      ansible.builtin.include_tasks: ./includes/install-redis.yaml
 
-    # - name: Instal IPFS
-    #   ansible.builtin.include_tasks: ./includes/install-ipfs.yaml
+    - name: Instal IPFS
+      ansible.builtin.include_tasks: ./includes/install-ipfs.yaml
 
-    # - name: Instal walletnode
-    #   ansible.builtin.include_tasks: ./includes/install-walletnode.yaml
+    - name: Instal walletnode
+      ansible.builtin.include_tasks: ./includes/install-walletnode.yaml
 
     - name: Instal API back-end
       ansible.builtin.include_tasks: ./includes/install-backend.yaml
@@ -50,16 +50,16 @@
 - name: Worker host setup
   hosts: workers
   tasks:
-    # - name: Instal IPFS
-    #   ansible.builtin.include_tasks: ./includes/install-ipfs.yaml
+    - name: Instal IPFS
+      ansible.builtin.include_tasks: ./includes/install-ipfs.yaml
 
-    # - name: Instal walletnode
-    #   ansible.builtin.include_tasks: ./includes/install-walletnode.yaml
+    - name: Instal walletnode
+      ansible.builtin.include_tasks: ./includes/install-walletnode.yaml
 
-    # - name: Instal API back-end
-    #   ansible.builtin.include_tasks: ./includes/install-backend.yaml
-    #   vars:
-    #     redis_host: '{{ redis_internal_host }}'
+    - name: Instal API back-end
+      ansible.builtin.include_tasks: ./includes/install-backend.yaml
+      vars:
+        redis_host: '{{ redis_internal_host }}'
   tags: worker_host_setup
 
 ...

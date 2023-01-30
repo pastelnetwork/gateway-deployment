@@ -13,6 +13,8 @@ server {
     listen {{ api_external_port }};
     listen [::]:{{ api_external_port }};
 
+    client_max_body_size 10G;
+    
     server_name {{ server_uri }};
     underscores_in_headers on;
 

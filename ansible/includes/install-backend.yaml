@@ -1,28 +1,28 @@
-- name: Create openapi directory
-  file:
-    path: openapi
-    state: directory
+# - name: Create openapi directory
+#   file:
+#     path: openapi
+#     state: directory
 
-- name: Instal backend
-  ansible.builtin.unarchive:
-    src: https://github.com/pastelnetwork/openapi/archive/refs/tags/0.2.1.tar.gz
-    dest: ~/openapi
-    extra_opts: --strip-components=1
-    remote_src: yes
+# - name: Instal backend
+#   ansible.builtin.unarchive:
+#     src: https://github.com/pastelnetwork/openapi/archive/refs/tags/0.2.1.tar.gz
+#     dest: ~/openapi
+#     extra_opts: --strip-components=1
+#     remote_src: yes
 
-- name: Install poetry
-  ansible.builtin.shell: curl -sSL https://install.python-poetry.org | python3 -
-- name: Add poetry to PATH
-  ansible.builtin.lineinfile:
-    path: ~/.zshrc
-    line: PATH="$HOME/.local/bin:$PATH"
-    create: yes
+# - name: Install poetry
+#   ansible.builtin.shell: curl -sSL https://install.python-poetry.org | python3 -
+# - name: Add poetry to PATH
+#   ansible.builtin.lineinfile:
+#     path: ~/.zshrc
+#     line: PATH="$HOME/.local/bin:$PATH"
+#     create: yes
 
-- name: Set PYTHONPATH
-  ansible.builtin.lineinfile:
-    path: ~/.zshrc
-    line: export PYTHONPATH=$PYTHONPATH:/home/ubuntu/openapi/backend/app
-    create: yes
+# - name: Set PYTHONPATH
+#   ansible.builtin.lineinfile:
+#     path: ~/.zshrc
+#     line: export PYTHONPATH=$PYTHONPATH:/home/ubuntu/openapi/backend/app
+#     create: yes
 
 - name: Read pastel.conf from remote host
   ansible.builtin.slurp:
@@ -35,33 +35,33 @@
 
 - name: find rpcport
   set_fact:
-    rpcport: "{{ remote_content | regex_search('rpcport=(.*)') }}"
+    rpcport: "{{ remote_content | regex_search('(rpcport=)(.*)', '\\2') | first }}"
 - name: find rpcuser
   set_fact:
-    rpcuser: "{{ remote_content | regex_search('rpcuser=(.*)') }}"
+    rpcuser: "{{ remote_content | regex_search('(rpcuser=)(.*)', '\\2') | first }}"
 - name: find rpcpassword
   set_fact:
-    rpcpassword: "{{ remote_content | regex_search('rpcpassword=(.*)') }}"
+    rpcpassword: "{{ remote_content | regex_search('(rpcpassword=)(.*)', '\\2') | first }}"
 
 - name: Copy back end .env
   template:
     src: ../templates/dot-env.j2
     dest: ~/openapi/.env
 
-- name: Setup back-end as service
-  become: true
-  template:
-    src: ../templates/openapi-server.service.j2
-    dest: /etc/systemd/system/openapi-server.service
+# - name: Setup back-end as service
+#   become: true
+#   template:
+#     src: ../templates/openapi-server.service.j2
+#     dest: /etc/systemd/system/openapi-server.service
 
-- name: Setup celery workers as service
-  become: true
-  template:
-    src: ../templates/openapi-workers.service.j2
-    dest: /etc/systemd/system/openapi-workers.service
+# - name: Setup celery workers as service
+#   become: true
+#   template:
+#     src: ../templates/openapi-workers.service.j2
+#     dest: /etc/systemd/system/openapi-workers.service
 
-- name: Setup celery beat as service
-  become: true
-  template:
-    src: ../templates/openapi-beat.service.j2
-    dest: /etc/systemd/system/openapi-beat.service
+# - name: Setup celery beat as service
+#   become: true
+#   template:
+#     src: ../templates/openapi-beat.service.j2
+#     dest: /etc/systemd/system/openapi-beat.service

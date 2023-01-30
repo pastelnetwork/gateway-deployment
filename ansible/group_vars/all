@@ -1,5 +1,6 @@
 ---
-release_name: latest
+# release_name: latest  # for mainnet
+release_name: beta      # for testnet
 network_type: testnet
 snapshot_name: testnet/snapshot-102328-p2.tar.gz
 pastel_data_path: ~/.pastel/testnet3

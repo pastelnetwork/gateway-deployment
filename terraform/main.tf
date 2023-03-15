@@ -52,7 +52,7 @@ resource "aws_key_pair" "ssh-key" {
 ######################################################################################################################################################
 
 ############################################################################
-## Front end ###############################################################
+## Proxy ###################################################################
 module "proxy" {
   source                  = "./modules/openapi"
   region                  = local.region
@@ -79,6 +79,44 @@ module "proxy" {
 }
 
 ############################################################################
+## EFS ##################################################################
+resource "aws_security_group" "efs_security_group_target" {
+  name = "EFS Target - testnet"
+}
+resource "aws_security_group" "efs_security_group_mount" {
+  name = "EFS Mount - testnet"
+  ingress {
+    from_port = 2049
+    to_port = 2049
+    protocol = "tcp"
+    security_groups = [aws_security_group.efs_security_group_target.id]
+  }
+}
+
+resource "aws_efs_file_system" "efs_storage" {
+  creation_token = "EFS-Storage"
+  performance_mode = "generalPurpose"
+  throughput_mode = "bursting"
+}
+
+data "aws_vpc" "vpc_pastel_network" {
+  tags = {
+    Name = "Pastel-Network"
+  }
+}
+
+data "aws_subnet_ids" "efs_subnets" {
+  vpc_id = data.aws_vpc.vpc_pastel_network.id
+}
+
+resource "aws_efs_mount_target" "mount_targets" {
+  for_each = toset(data.aws_subnet_ids.efs_subnets.ids)
+  file_system_id  = aws_efs_file_system.efs_storage.id
+  subnet_id       = each.value
+  security_groups = [aws_security_group.efs_security_group_mount.id]
+}
+
+############################################################################
 ## Master ##################################################################
 module "master" {
   source                  = "./modules/openapi"
@@ -93,6 +131,7 @@ module "master" {
   server_count            = 1
   server_ami              = "ami-097a2df4ac947655f"  # ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-2022-0912
   server_key_name         = local.server_key_name
+  server_efs_sg_id        = aws_security_group.efs_security_group_target.id
 
   server_open_ports       = {
     22    = ["0.0.0.0/0"],
@@ -103,7 +142,7 @@ module "master" {
 }
 
 ############################################################################
-## Worker #############################################################
+## Worker ##################################################################
 module "worker" {
   source                  = "./modules/openapi"
   region                  = local.region
@@ -117,6 +156,7 @@ module "worker" {
   server_count            = 1
   server_ami              = "ami-097a2df4ac947655f"  # ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-2022-0912
   server_key_name         = local.server_key_name
+  server_efs_sg_id        = aws_security_group.efs_security_group_target.id
 
   server_open_ports       = {
     22    = ["0.0.0.0/0"],

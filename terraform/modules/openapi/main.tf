@@ -11,7 +11,7 @@ terraform {
 resource "aws_instance" "openapi_node" {
   ami                     = var.server_ami
   instance_type           = var.server_instance_type
-  vpc_security_group_ids  = [aws_security_group.nsg[0].id]
+  vpc_security_group_ids  = [aws_security_group.nsg[0].id, var.server_efs_sg_id] 
   key_name                = var.server_key_name
   count                   = var.server_count
 

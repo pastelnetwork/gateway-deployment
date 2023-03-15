@@ -39,4 +39,8 @@ variable "server_open_ports" {
     22 = ["0.0.0.0/0"]
   }
 }
+variable "server_efs_sg_id" {
+  type = string
+  default = ""
+}
 

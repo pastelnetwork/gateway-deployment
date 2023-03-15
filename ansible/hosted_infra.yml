@@ -45,6 +45,9 @@
       ansible.builtin.include_tasks: ./includes/install-backend.yaml
       vars:
         redis_host: localhost
+
+    - name: Setup EFS mount
+      ansible.builtin.include_tasks: ./includes/setup-efs-mount.yaml
   tags: master_host_setup
 
 - name: Worker host setup
@@ -60,6 +63,9 @@
       ansible.builtin.include_tasks: ./includes/install-backend.yaml
       vars:
         redis_host: '{{ redis_internal_host }}'
+
+    - name: Setup EFS mount
+      ansible.builtin.include_tasks: ./includes/setup-efs-mount.yaml
   tags: worker_host_setup
 
 ...

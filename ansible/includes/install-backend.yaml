@@ -60,6 +60,12 @@
     src: ../templates/openapi-workers.service.j2
     dest: /etc/systemd/system/openapi-workers.service
 
+- name: Setup celery helpers as service
+  become: true
+  template:
+    src: ../templates/openapi-helpers.service.j2
+    dest: /etc/systemd/system/openapi-helpers.service
+
 - name: Setup celery beat as service
   become: true
   template:

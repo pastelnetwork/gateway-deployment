@@ -24,3 +24,12 @@ ${ workers_ids[index]} ansible_host=${ worker } internal_ip=${ workers_internal_
 [workers:vars]
 ansible_user=${workers_user}
 ansible_private_key_file=${workers_priv_key_path}
+
+[ipfs]
+%{ for index, ipfs_peer in ipfs_peers ~}
+${ ipfs_peers_ids[index]} ansible_host=${ ipfs_peer } internal_ip=${ ipfs_peers_internal_ips[index] }
+%{ endfor ~}
+
+[ipfs:vars]
+ansible_user=${ipfs_peers_user}
+ansible_private_key_file=${ipfs_peers_priv_key_path}

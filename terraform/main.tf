@@ -70,8 +70,7 @@ module "proxy" {
   server_open_ports       = {
     22    = ["0.0.0.0/0"],
     80    = ["0.0.0.0/0"],
-    403   = ["0.0.0.0/0"],
-    4001  = ["0.0.0.0/0"],  #ipfs
+    443   = ["0.0.0.0/0"],
     5555  = ["0.0.0.0/0"],  #flowers WEB UI
     5672  = ["0.0.0.0/0"],  #pgadmin
     8080  = ["0.0.0.0/0"]   #API backend
@@ -81,10 +80,12 @@ module "proxy" {
 ############################################################################
 ## EFS ##################################################################
 resource "aws_security_group" "efs_security_group_target" {
-  name = "EFS Target - testnet"
+  name = "EFS Taget - testnet"
+  description = "EFS Taget - testnet, to be assigned to EC2"
 }
 resource "aws_security_group" "efs_security_group_mount" {
   name = "EFS Mount - testnet"
+  description = "EFS Mount - testnet, to be assigned to EFS"
   ingress {
     from_port = 2049
     to_port = 2049
@@ -94,7 +95,7 @@ resource "aws_security_group" "efs_security_group_mount" {
 }
 
 resource "aws_efs_file_system" "efs_storage" {
-  creation_token = "EFS-Storage"
+  creation_token = "quickCreated-19d45430-8497-4e4f-b321-93679236cc3b" # "EFS-Storage"
   performance_mode = "generalPurpose"
   throughput_mode = "bursting"
 }
@@ -124,7 +125,7 @@ module "master" {
   network_name            = local.network
   network_type            = local.type
 
- server_drive_size       = 200 # default: 100
+  server_drive_size       = 200 # default: 100
 #  server_instance_type    = default: "t2.large"
 
   server_type             = "master"
@@ -136,7 +137,7 @@ module "master" {
   server_open_ports       = {
     22    = ["0.0.0.0/0"],
     8090  = formatlist("%s/32", module.proxy.instance_private_ips),   #backend
-    4001  = formatlist("%s/32", concat(module.proxy.instance_private_ips, module.worker.instance_private_ips)),   #ipfs
+    4001  = ["0.0.0.0/0"],   #ipfs
     6379  = formatlist("%s/32", concat(module.proxy.instance_private_ips, module.worker.instance_private_ips))   #redis
   }
 }
@@ -149,7 +150,7 @@ module "worker" {
   network_name            = local.network
   network_type            = local.type
 
- server_drive_size       = 200 # default: 100
+  server_drive_size       = 200 # default: 100
 #  server_instance_type    = default: "t2.large"
 
   server_type             = "worker"
@@ -160,7 +161,30 @@ module "worker" {
 
   server_open_ports       = {
     22    = ["0.0.0.0/0"],
-    4001  = formatlist("%s/32", concat(module.proxy.instance_private_ips,module.master.instance_private_ips))   #ipfs
+    4001  = ["0.0.0.0/0"]   #ipfs
+  }
+}
+
+############################################################################
+## IPFS Cluster ############################################################
+module "ipfs_peer" {
+  source                  = "./modules/openapi"
+  region                  = local.region
+  network_name            = local.network
+  network_type            = local.type
+
+  server_drive_size       = 700 # default: 100
+  server_instance_type    = "m5a.xlarge"
+
+  server_type             = "ipfs_peer"
+  server_count            = 3
+  server_ami              = "ami-097a2df4ac947655f"  # ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-2022-0912
+  server_key_name         = local.server_key_name
+  server_efs_sg_id        = aws_security_group.efs_security_group_target.id
+
+  server_open_ports       = {
+    22    = ["0.0.0.0/0"],
+    4001  = ["0.0.0.0/0"] #formatlist("%s/32", concat(module.proxy.instance_private_ips,module.master.instance_private_ips))   #ipfs
   }
 }
 
@@ -186,6 +210,12 @@ resource "local_file" "inventory" {
     workers_ids             = module.worker.node_id,
     workers_user            = local.server_user,
     workers_priv_key_path   = var.server_private_key_path,
+
+    ipfs_peers                 = module.ipfs_peer.instance_public_ip,
+    ipfs_peers_internal_ips    = module.ipfs_peer.instance_private_ips,
+    ipfs_peers_ids             = module.ipfs_peer.node_id,
+    ipfs_peers_user            = local.server_user,
+    ipfs_peers_priv_key_path   = var.server_private_key_path,
    }
   )
   filename = local.inv_file_name

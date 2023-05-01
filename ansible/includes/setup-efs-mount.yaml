@@ -37,3 +37,8 @@
     path: /mnt/efs/pastelids
     state: directory
     mode: "u+rwx,g+rwx,o+rx"
+- name: Create symbolic link to pastelid directory
+  file:
+    src: /mnt/efs/pastelids
+    dest: '{{pastel_data_path}}/pastelkeys'
+    state: link

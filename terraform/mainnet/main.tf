@@ -8,29 +8,90 @@ terraform {
   cloud {
     organization = "PastelNetwork"
     workspaces {
-      name = "OpenAPI-testnet"
+      name = "GatewayAPI-mainnet"
     }
   }
 
   required_version = ">= 0.14.9"
 }
 
-provider "aws" {
-  profile = "default"
-  region  = local.region
-}
-
 ############################################################################
 ## Variables ###############################################################
 locals {
-  region = "us-east-2"
-  network = "Cezanne"
-  type    = "testnet"
+  aws_region    = "us-east-2"
+  network_name  = "Monet"
+  network_type  = "mainnet"
 
-  server_key_name         = "${local.network}-${local.type}-OpenAPI-ssh-key"
-  server_user             = "ubuntu"
+  vpc_cidr_block    = "10.0.0.0/16"
+  subnet_cidr_block = "10.0.1.0/24"
 
-  inv_file_name = "${local.network}-${local.type}-OpenAPI.inventory"
+  server_key_name = "${local.network_name}-${local.network_type}-APIGateway-ssh-key"
+  server_user     = "ubuntu"
+
+  inv_file_name = "${local.network_name}-${local.network_type}-APIGateway.inventory"
+  vpc_name      = "${local.network_name}-${local.network_type}-APIGateway-VPC"
+}
+
+###########################################################################
+######################## Basic network resources ##########################
+# Set the provider
+provider "aws" {
+  profile = "default"
+  region  = local.aws_region
+}
+
+# Create a VPC
+resource "aws_vpc" "vpc_pastel_network" {
+  cidr_block = local.vpc_cidr_block
+
+  tags = {
+    Name = local.vpc_name
+    Role = "VPC"
+    Env = local.network_type
+  }
+}
+
+# Create internet gateway for new VPC
+resource "aws_internet_gateway" "psl_internet_gateway" {
+  vpc_id = aws_vpc.vpc_pastel_network.id
+
+  tags = {
+    Name = format("%s %s - InternetGateway", local.network_name, local.network_type)
+    Role = "InternetGateway"
+    Env = local.network_type
+  }
+}
+
+resource "aws_route_table" "pls_internet_route_table" {
+  vpc_id = aws_vpc.vpc_pastel_network.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.psl_internet_gateway.id
+  }
+
+  tags = {
+    Name = format("%s %s - RouteTable", local.network_name, local.network_type)
+    Role = "RouteTable"
+    Env = local.network_type
+  }
+}
+
+# Create a subnet
+resource "aws_subnet" "pastel_network_subnet" {
+  vpc_id     = aws_vpc.vpc_pastel_network.id
+  cidr_block = local.subnet_cidr_block
+
+  tags = {
+    Name = format("%s %s - Subnet", local.network_name, local.network_type)
+    Role = "Subnet"
+    Env = local.network_type
+  }
+}
+
+resource "aws_route_table_association" "psl_route_table_association" {
+  subnet_id      = aws_subnet.pastel_network_subnet.id
+  route_table_id = aws_route_table.pls_internet_route_table.id
 }
 
 ############################################################################
@@ -54,10 +115,13 @@ resource "aws_key_pair" "ssh-key" {
 ############################################################################
 ## Proxy ###################################################################
 module "proxy" {
-  source                  = "./modules/openapi"
-  region                  = local.region
-  network_name            = local.network
-  network_type            = local.type
+  source                  = "../modules/openapi"
+  region                  = local.aws_region
+  network_name            = local.network_name
+  network_type            = local.network_type
+
+  vpc_id    = data.aws_vpc.vpc_pastel_network.id
+  subnet_id = aws_subnet.pastel_network_subnet.id
 
  server_drive_size       = 200 # default: 100
 #  server_instance_type    = default: "t2.large"
@@ -80,12 +144,14 @@ module "proxy" {
 ############################################################################
 ## EFS ##################################################################
 resource "aws_security_group" "efs_security_group_target" {
-  name = "EFS Taget - testnet"
-  description = "EFS Taget - testnet, to be assigned to EC2"
+  name = "EFS Taget - mainnet"
+  description = "EFS Taget - mainnet, to be assigned to EC2"
+  vpc_id = data.aws_vpc.vpc_pastel_network.id
 }
 resource "aws_security_group" "efs_security_group_mount" {
-  name = "EFS Mount - testnet"
-  description = "EFS Mount - testnet, to be assigned to EFS"
+  name = "EFS Mount - mainnet"
+  description = "EFS Mount - mainnet, to be assigned to EFS"
+  vpc_id = data.aws_vpc.vpc_pastel_network.id
   ingress {
     from_port = 2049
     to_port = 2049
@@ -95,23 +161,26 @@ resource "aws_security_group" "efs_security_group_mount" {
 }
 
 resource "aws_efs_file_system" "efs_storage" {
-  creation_token = "quickCreated-19d45430-8497-4e4f-b321-93679236cc3b" # "EFS-Storage"
+  # creation_token = 
   performance_mode = "generalPurpose"
   throughput_mode = "bursting"
 }
 
 data "aws_vpc" "vpc_pastel_network" {
   tags = {
-    Name = "Pastel-Network"
+    Name = local.vpc_name
   }
 }
 
-data "aws_subnet_ids" "efs_subnets" {
-  vpc_id = data.aws_vpc.vpc_pastel_network.id
+data "aws_subnets" "efs_subnets" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.vpc_pastel_network.id]
+  }
 }
 
 resource "aws_efs_mount_target" "mount_targets" {
-  for_each = toset(data.aws_subnet_ids.efs_subnets.ids)
+  for_each = toset(data.aws_subnets.efs_subnets.ids)
   file_system_id  = aws_efs_file_system.efs_storage.id
   subnet_id       = each.value
   security_groups = [aws_security_group.efs_security_group_mount.id]
@@ -120,10 +189,13 @@ resource "aws_efs_mount_target" "mount_targets" {
 ############################################################################
 ## Master ##################################################################
 module "master" {
-  source                  = "./modules/openapi"
-  region                  = local.region
-  network_name            = local.network
-  network_type            = local.type
+  source                  = "../modules/openapi"
+  region                  = local.aws_region
+  network_name            = local.network_name
+  network_type            = local.network_type
+  
+  vpc_id    = data.aws_vpc.vpc_pastel_network.id
+  subnet_id = aws_subnet.pastel_network_subnet.id
 
   server_drive_size       = 200 # default: 100
 #  server_instance_type    = default: "t2.large"
@@ -145,10 +217,13 @@ module "master" {
 ############################################################################
 ## Worker ##################################################################
 module "worker" {
-  source                  = "./modules/openapi"
-  region                  = local.region
-  network_name            = local.network
-  network_type            = local.type
+  source                  = "../modules/openapi"
+  region                  = local.aws_region
+  network_name            = local.network_name
+  network_type            = local.network_type
+
+  vpc_id    = data.aws_vpc.vpc_pastel_network.id
+  subnet_id = aws_subnet.pastel_network_subnet.id
 
   server_drive_size       = 200 # default: 100
 #  server_instance_type    = default: "t2.large"
@@ -168,10 +243,13 @@ module "worker" {
 ############################################################################
 ## IPFS Cluster ############################################################
 module "ipfs_peer" {
-  source                  = "./modules/openapi"
-  region                  = local.region
-  network_name            = local.network
-  network_type            = local.type
+  source                  = "../modules/openapi"
+  region                  = local.aws_region
+  network_name            = local.network_name
+  network_type            = local.network_type
+
+  vpc_id    = data.aws_vpc.vpc_pastel_network.id
+  subnet_id = aws_subnet.pastel_network_subnet.id
 
   server_drive_size       = 700 # default: 100
   server_instance_type    = "m5a.xlarge"
@@ -192,7 +270,7 @@ module "ipfs_peer" {
 ## Ansible Inventory ###################################################
 
 resource "local_file" "inventory" {
-  content  = templatefile("./openapi-inventory.tftpl", {
+  content  = templatefile("../openapi-inventory.tftpl", {
     proxys                = module.proxy.instance_public_ip,
     proxy_internal_ips    = module.proxy.instance_private_ips,
     proxys_ids            = module.proxy.node_id,

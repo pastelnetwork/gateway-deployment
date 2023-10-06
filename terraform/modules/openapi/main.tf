@@ -11,7 +11,6 @@ terraform {
 resource "aws_instance" "openapi_node" {
   ami                     = var.server_ami
   instance_type           = var.server_instance_type
-  vpc_security_group_ids  = concat([aws_security_group.nsg[0].id], var.server_efs_sg_id != "" ? [var.server_efs_sg_id] : [])
 
   key_name                = var.server_key_name
   count                   = var.server_count
@@ -28,10 +27,20 @@ resource "aws_instance" "openapi_node" {
     volume_size = var.server_drive_size
     volume_type = "gp3"
   }
+
+  dynamic "network_interface" {
+    for_each = [true]
+
+    content {
+      network_interface_id = aws_network_interface.psl_eni[count.index].id
+      device_index         = 0
+    }
+  }
 }
 
 resource "aws_security_group" "nsg" {
   count = var.server_count > 0 ? 1 : 0
+  vpc_id  = var.vpc_id
   name = "${var.network_name}-${var.network_type}-OpenAPI-${var.server_type}-sg"
 }
 resource "aws_security_group_rule" "other_inbound" {
@@ -56,3 +65,25 @@ resource "aws_security_group_rule" "allow_all_outbound" {
   cidr_blocks = ["0.0.0.0/0"]
 }
 
+# Create an Elastic IP
+resource "aws_eip" "psl_eip" {
+  count = var.server_count
+  vpc = true
+
+  tags = {
+    Name = format("%s - Pastel Gateway - %s %02d - EIP", var.network_type, var.server_type, count.index+1)
+    Role = "Elastic IP"
+    Env = var.network_type
+  }
+}
+resource "aws_network_interface" "psl_eni" {
+  count = var.server_count
+  subnet_id       = var.subnet_id
+  security_groups  = concat([aws_security_group.nsg[0].id], var.server_efs_sg_id != "" ? [var.server_efs_sg_id] : [])
+}
+resource "aws_eip_association" "psl_eni_eip_association" {
+  count = var.server_count
+
+  instance_id          = aws_instance.openapi_node[count.index].id
+  allocation_id        = aws_eip.psl_eip[count.index].id
+}

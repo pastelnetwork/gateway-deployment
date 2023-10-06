@@ -44,3 +44,11 @@ variable "server_efs_sg_id" {
   default = ""
 }
 
+variable "vpc_id" {
+  type = string
+}
+
+variable "subnet_id" {
+  type = string
+}
+

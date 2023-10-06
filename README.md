@@ -9,6 +9,8 @@ cd terraform
 ```
 
 #### Create variables pointing to the SSH keys (keys must exist)
+NOTE: `ssh-keygen -t ed25519 -f <path-to-key-files>`
+
 Create file `override.tf`
 ```
 variable "server_public_key_path" {

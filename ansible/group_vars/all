@@ -1,11 +1,13 @@
 ---
-# release_name: latest  # for mainnet
-release_name: beta      # for testnet
-network_type: testnet
-snapshot_name: testnet/snapshot-102328-p2.tar.gz
-pastel_data_path: ~/.pastel/testnet3
+# network_type: testnet
+network_type: mainnet
+# pastel_data_path: ~/.pastel/testnet3
+pastel_data_path: ~/.pastel
+# snapshot_name: testnet/snapshot-102328-p2.tar.gz
 
-server_uri: openapi.testnet.pastel.network
+server_uri: gateway-api.pastel.network
+s3_secret_prefix: mainnet-api-gateway
+mount_target: fs-06480181384ed0c81.efs.us-east-2.amazonaws.com
 
 front_end_external_port: 80   # if need to chaning this value, remember to adjust that port in FireWall (either manually or in terraform file) 
 front_end_internal_port: 8181

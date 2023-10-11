@@ -1,8 +1,15 @@
 SECRET_KEY={{ lookup('password', '/dev/null chars=ascii_lowercase,digits length=64') }}
 
-SERVER_HOST=http://{{ server_uri }}
+SERVER_HOST=https://{{ server_uri }}
 
-STACK_NAME=openapi-pastel-network
+STACK_NAME=gateway-api-pastel-network
+
+BACKEND_CORS_ORIGINS='["http://localhost","http://localhost:8081","http://100.26.28.34","http://100.26.28.34:8081","https://smartmint.pastel.network","https://smartmintdev.pastel.network", "http://172.31.2.243"]'
+
+AWS_SECRET_MANAGER_REGION="us-east-2"
+AWS_SECRET_MANAGER_RDS_CREDENTIALS="{{ s3_secret_prefix }}"
+AWS_SECRET_MANAGER_SMTP_SECRETS="{{ s3_secret_prefix }}-smtp"
+AWS_SECRET_MANAGER_PASTEL_IDS="{{ s3_secret_prefix }}-pastelids"
 
 PASTEL_RPC_PORT={{ rpcport }}
 PASTEL_RPC_USER={{ rpcuser }}
@@ -12,19 +19,27 @@ WN_BASE_PORT={{ wn_base_port }}
 REDIS_HOST={{ redis_host }}
 
 PASTEL_ID=CHANGE_ME
-PASSPHRASE=CHANGE_ME
 
 BURN_ADDRESS=tPpasteLBurnAddressXXXXXXXXXXX3wy7u     # Testnet
 # BURN_ADDRESS=PtpasteLBurnAddressXXXXXXXXXXbJ5ndd   # Mainnet
 
-FILE_STORAGE=/tmp
-
-POSTGRES_SERVER=openapi.clyixrliqzd7.us-east-2.rds.amazonaws.com
-POSTGRES_USER=openapi
-POSTGRES_PASSWORD=KZMJzBhsLBsylrbyQRoh
-POSTGRES_DB=testnet
+FILE_STORAGE=/mnt/efs/images
 
 FIRST_SUPERUSER=admin@openapi.pastel.network
 FIRST_SUPERUSER_PASSWORD=admin
 
 SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=gateway@pastel.network
+EMAILS_FROM_EMAIL=gateway@pastel.network
+EMAILS_FROM_NAME=Pastel API Gateway
+EMAIL_TEMPLATES_DIR=/home/ubuntu/openapi/backend/app/app/email-templates
+ALERTS_EMAIL_RCPT=alexey@pastel.network
+
+FRONTEND_URL=https://portal.pastel.network
+
+SCW_ENABLED=True
+SCW_SECRET_KEY="d485f578-855a-47c3-acd7-8fff35a9353e"
+SCW_VOLUME_ID="4317cffb-eb5d-4a16-8896-3960ab74e5d2"
+
+

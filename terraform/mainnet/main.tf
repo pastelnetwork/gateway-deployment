@@ -22,8 +22,10 @@ locals {
   network_name  = "Monet"
   network_type  = "mainnet"
 
-  vpc_cidr_block    = "10.0.0.0/16"
-  subnet_cidr_block = "10.0.1.0/24"
+  vpc_cidr_block      = "10.0.0.0/16"
+  subnet_cidr_block_a = "10.0.0.0/20"
+  subnet_cidr_block_b = "10.0.16.0/20"
+  subnet_cidr_block_c = "10.0.32.0/20"
 
   server_key_name = "${local.network_name}-${local.network_type}-APIGateway-ssh-key"
   server_user     = "ubuntu"
@@ -43,6 +45,8 @@ provider "aws" {
 # Create a VPC
 resource "aws_vpc" "vpc_pastel_network" {
   cidr_block = local.vpc_cidr_block
+  enable_dns_hostnames = true
+  enable_dns_support = true
 
   tags = {
     Name = local.vpc_name
@@ -77,20 +81,54 @@ resource "aws_route_table" "pls_internet_route_table" {
   }
 }
 
-# Create a subnet
-resource "aws_subnet" "pastel_network_subnet" {
+# Create subnet A
+resource "aws_subnet" "pastel_network_subnet_A" {
   vpc_id     = aws_vpc.vpc_pastel_network.id
-  cidr_block = local.subnet_cidr_block
+  cidr_block = local.subnet_cidr_block_a
+  availability_zone = "${local.aws_region}a"
 
   tags = {
-    Name = format("%s %s - Subnet", local.network_name, local.network_type)
+    Name = format("%s %s - Subnet A", local.network_name, local.network_type)
     Role = "Subnet"
     Env = local.network_type
   }
 }
+resource "aws_route_table_association" "psl_route_table_association_A" {
+  subnet_id      = aws_subnet.pastel_network_subnet_A.id
+  route_table_id = aws_route_table.pls_internet_route_table.id
+}
 
-resource "aws_route_table_association" "psl_route_table_association" {
-  subnet_id      = aws_subnet.pastel_network_subnet.id
+# Create subnet B
+resource "aws_subnet" "pastel_network_subnet_B" {
+  vpc_id     = aws_vpc.vpc_pastel_network.id
+  cidr_block = local.subnet_cidr_block_b
+  availability_zone = "${local.aws_region}b"
+
+  tags = {
+    Name = format("%s %s - Subnet B", local.network_name, local.network_type)
+    Role = "Subnet"
+    Env = local.network_type
+  }
+}
+resource "aws_route_table_association" "psl_route_table_association_B" {
+  subnet_id      = aws_subnet.pastel_network_subnet_B.id
+  route_table_id = aws_route_table.pls_internet_route_table.id
+}
+
+# Create subnet C
+resource "aws_subnet" "pastel_network_subnet_C" {
+  vpc_id     = aws_vpc.vpc_pastel_network.id
+  cidr_block = local.subnet_cidr_block_c
+  availability_zone = "${local.aws_region}c"
+
+  tags = {
+    Name = format("%s %s - Subnet C", local.network_name, local.network_type)
+    Role = "Subnet"
+    Env = local.network_type
+  }
+}
+resource "aws_route_table_association" "psl_route_table_association_C" {
+  subnet_id      = aws_subnet.pastel_network_subnet_C.id
   route_table_id = aws_route_table.pls_internet_route_table.id
 }
 
@@ -121,7 +159,7 @@ module "proxy" {
   network_type            = local.network_type
 
   vpc_id    = data.aws_vpc.vpc_pastel_network.id
-  subnet_id = aws_subnet.pastel_network_subnet.id
+  subnet_id = aws_subnet.pastel_network_subnet_A.id
 
  server_drive_size       = 200 # default: 100
 #  server_instance_type    = default: "t2.large"
@@ -195,7 +233,7 @@ module "master" {
   network_type            = local.network_type
   
   vpc_id    = data.aws_vpc.vpc_pastel_network.id
-  subnet_id = aws_subnet.pastel_network_subnet.id
+  subnet_id = aws_subnet.pastel_network_subnet_A.id
 
   server_drive_size       = 200 # default: 100
 #  server_instance_type    = default: "t2.large"
@@ -223,7 +261,7 @@ module "worker" {
   network_type            = local.network_type
 
   vpc_id    = data.aws_vpc.vpc_pastel_network.id
-  subnet_id = aws_subnet.pastel_network_subnet.id
+  subnet_id = aws_subnet.pastel_network_subnet_A.id
 
   server_drive_size       = 200 # default: 100
 #  server_instance_type    = default: "t2.large"
@@ -249,7 +287,7 @@ module "ipfs_peer" {
   network_type            = local.network_type
 
   vpc_id    = data.aws_vpc.vpc_pastel_network.id
-  subnet_id = aws_subnet.pastel_network_subnet.id
+  subnet_id = aws_subnet.pastel_network_subnet_A.id
 
   server_drive_size       = 700 # default: 100
   server_instance_type    = "m5a.xlarge"

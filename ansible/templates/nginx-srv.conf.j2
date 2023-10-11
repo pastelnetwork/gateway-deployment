@@ -24,17 +24,6 @@ server {
     }
 }
 server {
-    listen {{ ipfs_external_port }};
-    listen [::]:{{ ipfs_external_port }};
-
-    server_name {{ server_uri }};
-
-    location / {
-        proxy_pass http://{{ ipfs_internal_host }}:{{ ipfs_internal_port }};
-        proxy_buffering off;
-    }
-}
-server {
     listen {{ flowers_external_port }};
     listen [::]:{{ flowers_external_port }};
 

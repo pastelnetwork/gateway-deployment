@@ -15,6 +15,7 @@
     path: /mnt/efs
     fstype: nfs
     opts: defaults
+    state: mounted
 - name: add to fstab
   become: true
   lineinfile:

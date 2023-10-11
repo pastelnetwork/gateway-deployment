@@ -1,14 +1,18 @@
-- name: Create openapi directory
-  file:
-    path: openapi
-    state: directory
+- name: Install required packages
+  become: true
+  package:
+    update_cache: yes
+    name: [gunicorn]
+    state: present
 
-- name: Instal backend
-  ansible.builtin.unarchive:
-    src: https://github.com/pastelnetwork/openapi/archive/refs/tags/0.2.1.tar.gz
-    dest: ~/openapi
-    extra_opts: --strip-components=1
-    remote_src: yes
+- name: Ensure git is installed
+  apt:
+    name: git
+    state: present
+- name: Clone repository
+  git:
+    repo: 'https://github.com/pastelnetwork/gateway-api.git'
+    dest: '~/gateway/'
 
 - name: Install poetry
   ansible.builtin.shell: curl -sSL https://install.python-poetry.org | python3 -
@@ -21,7 +25,7 @@
 - name: Set PYTHONPATH
   ansible.builtin.lineinfile:
     path: ~/.zshrc
-    line: export PYTHONPATH=$PYTHONPATH:/home/ubuntu/openapi/backend/app
+    line: export PYTHONPATH=$PYTHONPATH:/home/ubuntu/gateway/backend/app
     create: yes
 
 - name: Read pastel.conf from remote host
@@ -46,28 +50,34 @@
 - name: Copy back end .env
   template:
     src: ../templates/dot-env.j2
-    dest: ~/openapi/.env
+    dest: ~/gateway/.env
 
 - name: Setup back-end as service
   become: true
   template:
-    src: ../templates/openapi-server.service.j2
-    dest: /etc/systemd/system/openapi-server.service
+    src: ../templates/gateway-server.service.j2
+    dest: /etc/systemd/system/gateway-server.service
 
 - name: Setup celery workers as service
   become: true
   template:
-    src: ../templates/openapi-workers.service.j2
-    dest: /etc/systemd/system/openapi-workers.service
+    src: ../templates/gateway-workers.service.j2
+    dest: /etc/systemd/system/gateway-workers.service
 
 - name: Setup celery helpers as service
   become: true
   template:
-    src: ../templates/openapi-helpers.service.j2
-    dest: /etc/systemd/system/openapi-helpers.service
+    src: ../templates/gateway-registration-helpers.service.j2
+    dest: /etc/systemd/system/gateway-registration-helpers.service
+
+- name: Setup celery tools as service
+  become: true
+  template:
+    src: ../templates/gateway-scheduled-tools.service.j2
+    dest: /etc/systemd/system/gateway-scheduled-tools.service
 
 - name: Setup celery beat as service
   become: true
   template:
-    src: ../templates/openapi-beat.service.j2
-    dest: /etc/systemd/system/openapi-beat.service
+    src: ../templates/gateway-beat.service.j2
+    dest: /etc/systemd/system/gateway-beat.service

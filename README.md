@@ -56,3 +56,6 @@ cp MySetup-testnet-OpenAPI.inventory ../ansible
 cd ansible
 ansible-playbook -i MySetup-testnet-OpenAPI.inventory hosted_infra.yml
 ```
+
+### 3. Create and setup Database
+#### As AWS RDS

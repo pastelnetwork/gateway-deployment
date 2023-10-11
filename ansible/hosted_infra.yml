@@ -13,7 +13,7 @@
     - { role: ansible-role-zsh, zsh_ohmy_theme: robbyrussell, zsh_ohmy_plugins: [git, git-extras, zsh-autosuggestions zsh-syntax-highlighting] }
   tags: common_host_setup
 
-# Proxy/Front-end host setup
+Proxy/Front-end host setup
 - hosts: proxy
   tasks:
     - name: Setup nginx

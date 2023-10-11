@@ -1,13 +1,14 @@
 - name: Download ipfs
   ansible.builtin.get_url:
-    # url: 'https://dist.ipfs.tech/kubo/v0.14.0/kubo_v0.14.0_linux-amd64.tar.gz'
-    # dest: ~/kubo_v0.14.0_linux-amd64.tar.gz
-    url: 'https://github.com/ipfs/kubo/releases/download/v0.7.0/go-ipfs_v0.7.0_linux-amd64.tar.gz'
-    dest: ~/go-ipfs_v0.7.0_linux-amd64.tar.gz
+    url: 'https://dist.ipfs.tech/kubo/v0.23.0/kubo_v0.23.0_linux-amd64.tar.gz'
+    dest: ~/kubo_v0.23.0_linux-amd64.tar.gz
+    # url: 'https://github.com/ipfs/kubo/releases/download/v0.7.0/go-ipfs_v0.7.0_linux-amd64.tar.gz'
+    # dest: ~/go-ipfs_v0.7.0_linux-amd64.tar.gz
 
 - name: Unarchive
   ansible.builtin.unarchive:
-    src: ~/go-ipfs_v0.7.0_linux-amd64.tar.gz
+    src: ~/kubo_v0.23.0_linux-amd64.tar.gz
+    # src: ~/go-ipfs_v0.7.0_linux-amd64.tar.gz
     dest: /tmp/
     remote_src: yes
 
@@ -15,8 +16,8 @@
   become: true
   ansible.builtin.shell:
     cmd: bash install.sh
-    # chdir: /tmp/kubo
-    chdir: /tmp/go-ipfs
+    chdir: /tmp/kubo
+    # chdir: /tmp/go-ipfs
 
 - name: Init ipfs
   ansible.builtin.shell: ipfs init

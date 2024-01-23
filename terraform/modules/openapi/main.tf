@@ -36,6 +36,7 @@ resource "aws_instance" "openapi_node" {
       device_index         = 0
     }
   }
+  iam_instance_profile = var.iam_instance_profile
 }
 
 resource "aws_security_group" "nsg" {

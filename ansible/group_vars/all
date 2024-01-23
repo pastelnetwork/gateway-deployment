@@ -1,13 +1,24 @@
 ---
+# network_type: mainnet
+# pastel_data_path: ~/.pastel
+# server_uri: gateway-api.pastel.network
+# s3_secret_prefix: gateway-api
+# mount_target: fs-06480181384ed0c81.efs.us-east-2.amazonaws.com
+
 # network_type: testnet
-network_type: mainnet
 # pastel_data_path: ~/.pastel/testnet3
-pastel_data_path: ~/.pastel
+# server_uri: testnet.gateway-api.pastel.network
+# s3_secret_prefix: testnet-gateway-api
+# mount_target: fs-0b71429d4e58a0d7b.efs.us-east-2.amazonaws.com
 # snapshot_name: testnet/snapshot-102328-p2.tar.gz
 
-server_uri: gateway-api.pastel.network
-s3_secret_prefix: mainnet-api-gateway
-mount_target: fs-06480181384ed0c81.efs.us-east-2.amazonaws.com
+network_type: devnet
+pastel_data_path: ~/.pastel/devnet
+server_uri: devnet.gateway-api.pastel.network
+s3_secret_prefix: devnet-gateway-api
+mount_target: fs-09f273dcff88c1f1f.efs.us-east-2.amazonaws.com
+
+
 
 front_end_external_port: 80   # if need to chaning this value, remember to adjust that port in FireWall (either manually or in terraform file) 
 front_end_internal_port: 8181

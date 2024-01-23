@@ -2,7 +2,11 @@
 
 ## Quick start
 
-### 1. Run terraform to create infrastructure
+### 1. Create and setup Database
+#### As AWS RDS
+With credentials managed by Secret's manager 
+
+### 2. Run terraform to create infrastructure
 
 ```shell
 cd terraform
@@ -39,9 +43,19 @@ locals {
 ... 
 ```
 
-#### Run terraform
+#### Initialize terraform
 ```shell
 terraform init
+terraform apply
+```
+
+#### Create VPC
+```shell
+terraform apply -target=aws_vpc.vpc_pastel_network
+```
+
+#### Create everything else
+```shell
 terraform apply
 ```
 
@@ -56,6 +70,3 @@ cp MySetup-testnet-OpenAPI.inventory ../ansible
 cd ansible
 ansible-playbook -i MySetup-testnet-OpenAPI.inventory hosted_infra.yml
 ```
-
-### 3. Create and setup Database
-#### As AWS RDS

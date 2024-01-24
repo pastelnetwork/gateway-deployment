@@ -4,6 +4,7 @@
 # server_uri: gateway-api.pastel.network
 # s3_secret_prefix: gateway-api
 # mount_target: fs-06480181384ed0c81.efs.us-east-2.amazonaws.com
+# s3_secret_rds_creds: CHANGE-ME
 
 # network_type: testnet
 # pastel_data_path: ~/.pastel/testnet3
@@ -11,18 +12,15 @@
 # s3_secret_prefix: testnet-gateway-api
 # mount_target: fs-0b71429d4e58a0d7b.efs.us-east-2.amazonaws.com
 # snapshot_name: testnet/snapshot-102328-p2.tar.gz
+# s3_secret_rds_creds: CHANGE-ME
 
 network_type: devnet
 pastel_data_path: ~/.pastel/devnet
 server_uri: devnet.gateway-api.pastel.network
 s3_secret_prefix: devnet-gateway-api
 mount_target: fs-09f273dcff88c1f1f.efs.us-east-2.amazonaws.com
+s3_secret_rds_creds: CHANGE-ME
 
-
-
-front_end_external_port: 80   # if need to chaning this value, remember to adjust that port in FireWall (either manually or in terraform file) 
-front_end_internal_port: 8181
-front_end_internal_host: localhost
 
 api_external_port: 8080       # if need to chaning this value, remember to adjust that port in FireWall (either manually or in terraform file)
 api_internal_port: 8090       # if need to chaning this value, remember to adjust that port in FireWall (either manually or in terraform file)

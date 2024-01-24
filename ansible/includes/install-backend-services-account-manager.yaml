@@ -1,0 +1,11 @@
+- name: Setup celery account manager as service
+  become: true
+  template:
+    src: ../templates/gateway-account-manager.service.j2
+    dest: /etc/systemd/system/gateway-account-manager.service
+
+- name: Setup celery beat as service
+  become: true
+  template:
+    src: ../templates/gateway-beat.service.j2
+    dest: /etc/systemd/system/gateway-beat.service

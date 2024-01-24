@@ -1,4 +1,5 @@
 SECRET_KEY={{ lookup('password', '/dev/null chars=ascii_lowercase,digits length=64') }}
+PROJECT_NAME="Pastel Network {{network_type}} API Gateway"
 
 SERVER_HOST=https://{{ server_uri }}
 
@@ -7,7 +8,8 @@ STACK_NAME=gateway-api-pastel-network
 BACKEND_CORS_ORIGINS='["http://localhost","http://localhost:8081","http://100.26.28.34","http://100.26.28.34:8081","https://smartmint.pastel.network","https://smartmintdev.pastel.network", "http://172.31.2.243"]'
 
 AWS_SECRET_MANAGER_REGION="us-east-2"
-AWS_SECRET_MANAGER_RDS_CREDENTIALS="{{ s3_secret_prefix }}"
+AWS_SECRET_MANAGER_RDS_CREDENTIALS="{{ s3_secret_rds_creds }}"
+AWS_SECRET_MANAGER_RDS_PARAMETERS="{{ s3_secret_prefix }}--db"
 AWS_SECRET_MANAGER_SMTP_SECRETS="{{ s3_secret_prefix }}-smtp"
 AWS_SECRET_MANAGER_PASTEL_IDS="{{ s3_secret_prefix }}-pastelids"
 
@@ -20,13 +22,13 @@ REDIS_HOST={{ redis_host }}
 
 PASTEL_ID=CHANGE_ME
 
-BURN_ADDRESS=tPpasteLBurnAddressXXXXXXXXXXX3wy7u     # Testnet
-# BURN_ADDRESS=PtpasteLBurnAddressXXXXXXXXXXbJ5ndd   # Mainnet
+BURN_ADDRESS=tPpasteLBurnAddressXXXXXXXXXXX3wy7u    # Testnet
+# BURN_ADDRESS=PtpasteLBurnAddressXXXXXXXXXXbJ5ndd    # Mainnet
+# BURN_ADDRESS=44oUgmZSL997veFEQDq569wv5tsT6KXf9QY7   # devnet
+
+MAIN_GATEWAY_ADDRESS=CHANGE_ME
 
 FILE_STORAGE=/mnt/efs/images
-
-FIRST_SUPERUSER=admin@openapi.pastel.network
-FIRST_SUPERUSER_PASSWORD=admin
 
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
@@ -42,4 +44,12 @@ SCW_ENABLED=True
 SCW_SECRET_KEY="d485f578-855a-47c3-acd7-8fff35a9353e"
 SCW_VOLUME_ID="4317cffb-eb5d-4a16-8896-3960ab74e5d2"
 
+IPFS_URL=http://localhost:5001/api/v0
 
+#REGISTRATION_FINISHER_ENABLED=False
+#REGISTRATION_RE_PROCESSOR_ENABLED=False
+#FEE_PRE_BURNER_ENABLED=False
+#REG_TICKETS_FINDER_ENABLED=False
+#WATCHDOG_ENABLED=False
+#TICKET_ACTIVATOR_ENABLED=False
+ACCOUNT_MANAGER_ENABLED=False

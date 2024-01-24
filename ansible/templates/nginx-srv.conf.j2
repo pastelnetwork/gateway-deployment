@@ -1,15 +1,4 @@
 server {
-    listen {{ front_end_external_port }};
-    listen [::]:{{ front_end_external_port }};
-
-    server_name {{ server_uri }};
-
-    location / {
-        proxy_pass http://{{ front_end_internal_host }}:{{ front_end_internal_port }}/;
-        proxy_buffering off;
-    }
-}
-server {
     listen {{ api_external_port }};
     listen [::]:{{ api_external_port }};
 

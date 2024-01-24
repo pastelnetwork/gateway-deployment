@@ -46,6 +46,9 @@
       vars:
         redis_host: localhost
 
+    - name: Instal API back-end services
+      ansible.builtin.include_tasks: ./includes/install-backend-services-master.yaml
+
     - name: Setup EFS mount
       ansible.builtin.include_tasks: ./includes/setup-efs-mount.yaml
   tags: master_host_setup
@@ -63,6 +66,9 @@
       ansible.builtin.include_tasks: ./includes/install-backend.yaml
       vars:
         redis_host: '{{ redis_internal_host }}'
+
+    - name: Instal API back-end services
+      ansible.builtin.include_tasks: ./includes/install-backend-services-account-manager.yaml
 
     - name: Setup EFS mount
       ansible.builtin.include_tasks: ./includes/setup-efs-mount.yaml
